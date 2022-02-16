@@ -12,6 +12,7 @@ import {useDispatch, useSelector} from 'react-redux';
 import {todoListSelector, todosRemainingSelector} from '../redux/selectors';
 import Item from './components/Item';
 import todoSlice from './todoSlice';
+import filterSlice from './filterSlice';
 
 const TodoList = () => {
   const [todoName, setTodoName] = useState('');
@@ -20,7 +21,7 @@ const TodoList = () => {
   const renderItem = ({item}) => <Item {...{item}} />;
   const dispatch = useDispatch();
 
-  const todoChange = text => {
+  const handleTodoChange = text => {
     setTodoName(text);
   };
 
@@ -33,18 +34,22 @@ const TodoList = () => {
     );
   };
 
+  const handleSearchChange = text => {
+    dispatch(filterSlice.actions.searchFilterChange(text));
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.body}>
         <Text style={styles.title}>Todo With Redux</Text>
-        <TextInput placeholder="Search..." style={styles.search} />
+        <TextInput placeholder="Search..." style={styles.search} onChangeText={handleSearchChange}/>
         <FlatList data={todoList} renderItem={renderItem} />
       </View>
       <View style={styles.insert}>
         <TextInput
           placeholder="Enter new todo"
           style={styles.input}
-          onChangeText={todoChange}
+          onChangeText={handleTodoChange}
         />
         <TouchableOpacity style={styles.button} onPress={handleAddButton}>
           <Text>Add Todo</Text>

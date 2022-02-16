@@ -7,6 +7,6 @@ export const todosRemainingSelector = createSelector(
   todoListSelector,
   searchTextSelector,
   (todoList, searchText) => {
-    return todoList.filter(todo => todo.value.includes(searchText));
+    return todoList.filter(todo => todo.value.toLowerCase().includes(searchText));
   },
 );
