@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -9,15 +9,16 @@ import {
   FlatList,
 } from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
-import {todoListSelector, todosRemainingSelector} from '../redux/selectors';
+import {getAllTasks} from '../database/services';
+import {todoListSelector} from '../redux/selectors';
 import Item from './components/Item';
-import todoSlice from './todoSlice';
-import filterSlice from './filterSlice';
+import {addTodo, filter, getTodo} from './todoSlice';
 
 const TodoList = () => {
   const [todoName, setTodoName] = useState('');
+  const [keyword,setKeyword] = useState('');
 
-  const todoList = useSelector(todosRemainingSelector);
+  const todoList = useSelector(todoListSelector);
   const renderItem = ({item}) => <Item {...{item}} />;
   const dispatch = useDispatch();
 
@@ -26,30 +27,41 @@ const TodoList = () => {
   };
 
   const handleAddButton = () => {
-    dispatch(
-      todoSlice.actions.addTodo({
-        id: todoList.length + 1,
-        value: todoName,
-      }),
-    );
+    dispatch(addTodo(todoName));
+    setTodoName('');
   };
+  useEffect(() => {
+    dispatch(getTodo());
+  }, []);
 
   const handleSearchChange = text => {
-    dispatch(filterSlice.actions.searchFilterChange(text));
+    setKeyword(text);
+    dispatch(filter(text));
   };
 
+  const keyExtractor = item => item._id;
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.body}>
         <Text style={styles.title}>Todo With Redux</Text>
-        <TextInput placeholder="Search..." style={styles.search} onChangeText={handleSearchChange}/>
-        <FlatList data={todoList} renderItem={renderItem} />
+        <TextInput
+          placeholder="Search..."
+          style={styles.search}
+          value={keyword}
+          onChangeText={handleSearchChange}
+        />
+        <FlatList
+          data={todoList}
+          renderItem={renderItem}
+          keyExtractor={keyExtractor}
+        />
       </View>
       <View style={styles.insert}>
         <TextInput
           placeholder="Enter new todo"
           style={styles.input}
           onChangeText={handleTodoChange}
+          value={todoName}
         />
         <TouchableOpacity style={styles.button} onPress={handleAddButton}>
           <Text>Add Todo</Text>
@@ -86,17 +98,17 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
     marginTop: 32,
     marginBottom: 12,
+    borderWidth: 1,
   },
   input: {
     flex: 1,
-    borderWidth: 0.5,
-    borderRightColor: '#FFF',
     paddingLeft: 8,
+    height: '100%',
   },
   button: {
     backgroundColor: '#A3E4DB',
     padding: 14,
-    borderWidth: 0.5,
+    borderLeftWidth: 1,
   },
 });
 

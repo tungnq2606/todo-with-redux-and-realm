@@ -1,12 +1,14 @@
 import { configureStore } from '@reduxjs/toolkit';
-import filterSlice from '../TodoList/filterSlice';
-import todosSlice from '../TodoList/todoSlice'
+import todoReducer from '../TodoList/todoSlice'
 
 const store = configureStore({
     reducer: {
-      todoList: todosSlice.reducer,
-      filters: filterSlice.reducer
+      todoList: todoReducer,
     },
+    middleware: getDefaultMiddleware =>
+    getDefaultMiddleware({
+      serializableCheck: false,
+    }),
   });
   
   export default store;
