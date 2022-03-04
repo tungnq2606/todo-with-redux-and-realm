@@ -7,29 +7,31 @@ import {
   TextInput,
   TouchableOpacity,
   FlatList,
+  Platform,
 } from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
+import AntDesign from 'react-native-vector-icons/AntDesign';
+
 import {getAllTasks} from '../database/services';
 import {todoListSelector} from '../redux/selectors';
 import Item from './components/Item';
-import {addTodo, filter, getTodo} from './todoSlice';
+import {addTodo, filter, getTodo, updateTaskStatus} from './todoSlice';
+import Modal from './components/CustomModal';
 
 const TodoList = () => {
-  const [todoName, setTodoName] = useState('');
-  const [keyword,setKeyword] = useState('');
+  const [keyword, setKeyword] = useState('');
+  const [modalIsVisible, setModalIsVisible] = useState(false);
 
   const todoList = useSelector(todoListSelector);
-  const renderItem = ({item}) => <Item {...{item}} />;
+
+  const renderItem = ({item}) => {
+    const updateStatus = () => {
+      dispatch(updateTaskStatus({id: item._id, status: !item.completed}));
+    };
+    return <Item {...{item}} onPress={updateStatus} />;
+  };
   const dispatch = useDispatch();
 
-  const handleTodoChange = text => {
-    setTodoName(text);
-  };
-
-  const handleAddButton = () => {
-    dispatch(addTodo(todoName));
-    setTodoName('');
-  };
   useEffect(() => {
     dispatch(getTodo());
   }, []);
@@ -40,6 +42,7 @@ const TodoList = () => {
   };
 
   const keyExtractor = item => item._id;
+  const handleModal = () => setModalIsVisible(prev => !prev);
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.body}>
@@ -53,20 +56,19 @@ const TodoList = () => {
         <FlatList
           data={todoList}
           renderItem={renderItem}
+          showsVerticalScrollIndicator={false}
           keyExtractor={keyExtractor}
         />
       </View>
-      <View style={styles.insert}>
-        <TextInput
-          placeholder="Enter new todo"
-          style={styles.input}
-          onChangeText={handleTodoChange}
-          value={todoName}
-        />
-        <TouchableOpacity style={styles.button} onPress={handleAddButton}>
-          <Text>Add Todo</Text>
-        </TouchableOpacity>
-      </View>
+      <TouchableOpacity
+        style={styles.buttonContainer}
+        activeOpacity={0.8}
+        onPress={handleModal}>
+        <View style={styles.addButton}>
+          <AntDesign name="plus" size={23} color="#FFF" />
+        </View>
+      </TouchableOpacity>
+      <Modal isVisible={modalIsVisible} closeModal={handleModal} />
     </SafeAreaView>
   );
 };
@@ -100,15 +102,20 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     borderWidth: 1,
   },
-  input: {
-    flex: 1,
-    paddingLeft: 8,
-    height: '100%',
+  addButton: {
+    width: 60,
+    height: 60,
+    borderRadius: 35,
+    backgroundColor: '#2DA9FA',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  button: {
-    backgroundColor: '#A3E4DB',
-    padding: 14,
-    borderLeftWidth: 1,
+  buttonContainer: {
+    width: '100%',
+    alignItems: 'flex-end',
+    paddingRight: 20,
+    paddingTop: 10,
+    marginBottom: Platform.OS === 'android' ? 20 : 0,
   },
 });
 
