@@ -17,10 +17,12 @@ import {todoListSelector} from '../redux/selectors';
 import Item from './components/Item';
 import {addTodo, filter, getTodo, updateTaskStatus} from './todoSlice';
 import Modal from './components/CustomModal';
+import ChooseOption from './components/ChooseOption';
 
 const TodoList = () => {
   const [keyword, setKeyword] = useState('');
-  const [modalIsVisible, setModalIsVisible] = useState(false);
+  const [createModalVisible, setCreateModalVisible] = useState(false);
+  const [updateModalVisible, setUpdateModalVisible] = useState(false);
 
   const todoList = useSelector(todoListSelector);
 
@@ -28,7 +30,7 @@ const TodoList = () => {
     const updateStatus = () => {
       dispatch(updateTaskStatus({id: item._id, status: !item.completed}));
     };
-    return <Item {...{item}} onPress={updateStatus} />;
+    return <Item {...{item}} onPress={updateStatus} onLongPress={handleUpdateModal} />;
   };
   const dispatch = useDispatch();
 
@@ -42,7 +44,9 @@ const TodoList = () => {
   };
 
   const keyExtractor = item => item._id;
-  const handleModal = () => setModalIsVisible(prev => !prev);
+
+  const handleCreateModal = () => setCreateModalVisible(prev => !prev);
+  const handleUpdateModal = () => setUpdateModalVisible(prev => !prev);
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.body}>
@@ -63,12 +67,13 @@ const TodoList = () => {
       <TouchableOpacity
         style={styles.buttonContainer}
         activeOpacity={0.8}
-        onPress={handleModal}>
+        onPress={handleCreateModal}>
         <View style={styles.addButton}>
           <AntDesign name="plus" size={23} color="#FFF" />
         </View>
       </TouchableOpacity>
-      <Modal isVisible={modalIsVisible} closeModal={handleModal} />
+      <Modal isVisible={createModalVisible} closeModal={handleCreateModal} />
+      <ChooseOption isVisible={updateModalVisible} closeModal={handleUpdateModal}/>
     </SafeAreaView>
   );
 };

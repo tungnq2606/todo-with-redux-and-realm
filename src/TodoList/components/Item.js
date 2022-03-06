@@ -3,9 +3,13 @@ import React from 'react';
 import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
-const Item = ({item, onPress}) => {
+const Item = ({item, onPress, onLongPress}) => {
   return (
-    <TouchableOpacity style={styles.container} activeOpacity={0.6} onPress={onPress}>
+    <TouchableOpacity
+      style={styles.container}
+      onLongPress={onLongPress}
+      activeOpacity={0.6}
+      onPress={onPress}>
       <Ionicons
         name={item?.completed ? 'checkmark-circle' : 'radio-button-off-sharp'}
         size={25}

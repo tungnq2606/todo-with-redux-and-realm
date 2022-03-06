@@ -157,4 +157,4 @@ const styles = StyleSheet.create({
     right: 5,
   },
 });
-export default CustomModal;
+export default React.memo(CustomModal);
