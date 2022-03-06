@@ -15,6 +15,7 @@ import DatePicker from 'react-native-date-picker';
 import moment from 'moment';
 import {useDispatch} from 'react-redux';
 import {addTodo} from '../todoSlice';
+import PushNotification from 'react-native-push-notification';
 
 const {width} = Dimensions.get('window');
 const CustomModal = ({isVisible, closeModal}) => {
@@ -51,6 +52,13 @@ const CustomModal = ({isVisible, closeModal}) => {
       setTaskName('');
       setDetail('');
       setDate(new Date());
+      PushNotification.localNotificationSchedule({
+        channelId: "expired",
+        title: 'Notification',
+        message: `Task ${taskName} is expired`,
+        date: new Date(date),
+        allowWhileIdle: true,
+      });
       closeModal();
     }
   };

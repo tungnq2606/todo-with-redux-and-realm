@@ -18,7 +18,6 @@ export const createTask = data => {
 };
 
 export const getAllTasks = () => {
-  console.log('get',realm.objects('Task').toJSON());
   return realm.objects('Task').toJSON();
 };
 

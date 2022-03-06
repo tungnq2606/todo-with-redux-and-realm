@@ -18,6 +18,7 @@ import Item from './components/Item';
 import {addTodo, filter, getTodo, updateTaskStatus} from './todoSlice';
 import Modal from './components/CustomModal';
 import ChooseOption from './components/ChooseOption';
+import PushNotification from 'react-native-push-notification';
 
 const TodoList = () => {
   const [keyword, setKeyword] = useState('');
@@ -30,7 +31,13 @@ const TodoList = () => {
     const updateStatus = () => {
       dispatch(updateTaskStatus({id: item._id, status: !item.completed}));
     };
-    return <Item {...{item}} onPress={updateStatus} onLongPress={handleUpdateModal} />;
+    return (
+      <Item
+        {...{item}}
+        onPress={updateStatus}
+        onLongPress={handleUpdateModal}
+      />
+    );
   };
   const dispatch = useDispatch();
 
@@ -73,7 +80,10 @@ const TodoList = () => {
         </View>
       </TouchableOpacity>
       <Modal isVisible={createModalVisible} closeModal={handleCreateModal} />
-      <ChooseOption isVisible={updateModalVisible} closeModal={handleUpdateModal}/>
+      <ChooseOption
+        isVisible={updateModalVisible}
+        closeModal={handleUpdateModal}
+      />
     </SafeAreaView>
   );
 };
