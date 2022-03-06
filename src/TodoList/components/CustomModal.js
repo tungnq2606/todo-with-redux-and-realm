@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import Modal from 'react-native-modal';
 import Entypo from 'react-native-vector-icons/Entypo';
 import AntDesign from 'react-native-vector-icons/AntDesign';
@@ -22,9 +22,12 @@ const CustomModal = ({isVisible, closeModal}) => {
   const [date, setDate] = useState(new Date());
   const [taskName, setTaskName] = useState('');
   const [detail, setDetail] = useState('');
+  const [taskNameValid, setTaskNameValid] = useState(true);
+  const [dateValid, setDateValid] = useState(true);
   const dispatch = useDispatch();
 
   const handleTaskChange = text => {
+    setTaskNameValid(text.trim().length > 0);
     setTaskName(text);
   };
 
@@ -33,19 +36,33 @@ const CustomModal = ({isVisible, closeModal}) => {
   };
 
   const addTask = () => {
-    const data = {
-      value: taskName,
-      detail,
-      timeEnd: new Date(date),
-    };
-    dispatch(addTodo(data));
-    setTaskName('');
-    setDetail('');
-    setDate(new Date());
-    closeModal();
+    setDateValid(moment(date).add(59, 'seconds').isAfter(new Date()));
+    setTaskNameValid(taskName.trim().length > 0);
+    if (
+      moment(date).add(1, 'minute').isAfter(new Date()) &&
+      taskName.trim().length > 0
+    ) {
+      const data = {
+        value: taskName,
+        detail,
+        timeEnd: new Date(date),
+      };
+      dispatch(addTodo(data));
+      setTaskName('');
+      setDetail('');
+      setDate(new Date());
+      closeModal();
+    }
   };
 
   const handleChangePicker = () => setOpenPicker(pre => !pre);
+
+  const handleDateChange = date => {
+    setOpenPicker(false);
+    setDate(date);
+    setDateValid(moment(date).add(1, 'minute').isAfter(new Date()));
+  };
+
   return (
     <Modal
       style={styles.modal}
@@ -63,6 +80,9 @@ const CustomModal = ({isVisible, closeModal}) => {
             value={taskName}
             onChangeText={handleTaskChange}
           />
+          {!taskNameValid && (
+            <Text style={styles.error}>Task name is require</Text>
+          )}
           <Text style={styles.title}>DETAIL</Text>
           <TextInput
             style={styles.input}
@@ -80,6 +100,11 @@ const CustomModal = ({isVisible, closeModal}) => {
             />
             <Entypo name="calendar" size={18} />
           </TouchableOpacity>
+          {!dateValid && (
+            <Text style={styles.error}>
+              The end time must be after the current time
+            </Text>
+          )}
           <TouchableOpacity style={styles.button} onPress={addTask}>
             <Text style={styles.label}>Create new task</Text>
           </TouchableOpacity>
@@ -96,10 +121,7 @@ const CustomModal = ({isVisible, closeModal}) => {
           title="Select time end"
           date={date}
           androidVariant="iosClone"
-          onConfirm={date => {
-            setOpenPicker(false);
-            setDate(date);
-          }}
+          onConfirm={handleDateChange}
           onCancel={handleChangePicker}
         />
       </KeyboardAvoidingView>
@@ -155,6 +177,10 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 5,
     right: 5,
+  },
+  error: {
+    color: 'red',
+    fontSize: 12,
   },
 });
 export default React.memo(CustomModal);

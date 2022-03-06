@@ -18,15 +18,16 @@ export const createTask = data => {
 };
 
 export const getAllTasks = () => {
+  console.log('get',realm.objects('Task').toJSON());
   return realm.objects('Task').toJSON();
 };
 
 export const filterByText = text => {
-  return realm.objects('Task').filtered(`value CONTAINS[c] "${text}"`);
+  return realm.objects('Task').filtered(`value CONTAINS[c] "${text}"`).toJSON();
 };
 
 export const updateStatus = (id, status) => {
- const tasks = realm.objects('Task').toJSON();
+ const tasks = realm.objects('Task');
   const task = tasks.find(item => item._id === id);
   realm.write(() => {
     task.completed = status;
